@@ -15,8 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include,path
+from userauth import views as userauth_views
+from django.contrib.auth.views import LoginView
+
 
 urlpatterns = [
-    path('', include('stelaapp.urls')),
     path('admin/', admin.site.urls),
+    path('register/', userauth_views.register, name="register"),
+    path('login/', LoginView.as_view(redirect_authenticated_user=True),name='login'),
+    path('', include("django.contrib.auth.urls")),
+    path('', include('stelaapp.urls')),
 ]
