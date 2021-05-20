@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class University(models.Model):
-    universityId = models.IntegerField(primary_key=True)
+    universityid = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
 
@@ -28,7 +28,7 @@ class List(models.Model):
         return "List name: {}".format(self.listName)
 
 class Profile(models.Model):
-    profileId = models.IntegerField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
@@ -36,7 +36,7 @@ class Profile(models.Model):
     studentIdNumber = models.CharField(max_length=11)
     faculty = models.CharField(max_length=200)
     DoB = models.DateField(null=True,blank=True)
-    universityId = models.ForeignKey(University,on_delete=models.CASCADE)
+    university = models.ForeignKey(University,on_delete=models.CASCADE,db_column='university', null=True)
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -54,11 +54,8 @@ class Candidate(models.Model):
         return "{}".format(self.aboutMe)
 
     
-@receiver(post_save,sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+@receiver(post_save, sender=User)
+def update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
